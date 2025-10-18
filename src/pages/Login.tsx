@@ -37,17 +37,26 @@ export default function Login() {
     }
 
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (error) {
-      toast.error(error.message);
+      if (error) {
+        toast.error(error.message);
+        setIsLoading(false);
+        return;
+      }
+
+      if (data?.user) {
+        toast.success("Logged in successfully!");
+        navigate("/home");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred during login");
       setIsLoading(false);
-    } else {
-      toast.success("Logged in successfully!");
-      navigate("/home");
     }
   };
 

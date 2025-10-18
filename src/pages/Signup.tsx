@@ -61,23 +61,34 @@ export default function Signup() {
     }
 
     setIsLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username: username,
-        },
-        emailRedirectTo: `${window.location.origin}/home`
-      }
-    });
+    
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username: username,
+          },
+          emailRedirectTo: `${window.location.origin}/home`
+        }
+      });
 
-    if (error) {
-      toast.error(error.message);
+      if (error) {
+        toast.error(error.message);
+        setIsLoading(false);
+        return;
+      }
+
+      if (data?.user) {
+        // Store email for verification page
+        localStorage.setItem("pendingEmail", email);
+        toast.success("Account created! Please verify your email.");
+        navigate("/email-verification");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred during signup");
       setIsLoading(false);
-    } else {
-      toast.success("Account created successfully! You can now log in.");
-      navigate("/home");
     }
   };
 
