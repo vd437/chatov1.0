@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import UserSearch from "./pages/UserSearch";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Auth from "./pages/Auth";
 import Verification from "./pages/Verification";
 import EmailLink from "./pages/EmailLink";
 import EmailVerification from "./pages/EmailVerification";
@@ -35,6 +36,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/verification" element={<Verification />} />

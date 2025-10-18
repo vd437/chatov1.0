@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { Globe } from "lucide-react";
+import { GoogleIcon } from "@/components/GoogleIcon";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -113,7 +113,7 @@ export default function Signup() {
             variant="outline"
             className="w-full h-12 border-2 border-primary hover:bg-primary/10"
           >
-            <Globe className="w-5 h-5 mr-2" />
+            <GoogleIcon className="w-5 h-5 mr-2" />
             Sign up with Google
           </Button>
 

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, Shield, Zap, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { GoogleIcon } from "@/components/GoogleIcon";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -55,24 +56,17 @@ const Index = () => {
             variant="outline"
             className="w-full sm:w-auto h-14 px-8 text-lg font-medium border-2 border-primary hover:bg-primary/10"
           >
-            <Globe className="w-5 h-5 mr-2" />
+            <GoogleIcon className="w-5 h-5 mr-2" />
             Sign in with Google
           </Button>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/auth")}
             className="w-full sm:w-auto h-14 px-8 bg-gradient-primary hover:opacity-90 transition-all shadow-soft text-lg font-medium"
           >
-            Sign In
-          </Button>
-          <Button
-            onClick={() => navigate("/signup")}
-            variant="outline"
-            className="w-full sm:w-auto h-14 px-8 text-lg font-medium border-2 border-primary hover:bg-primary/10"
-          >
-            Create Account
+            Log In or Create Account
           </Button>
         </div>
 
