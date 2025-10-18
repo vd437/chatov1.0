@@ -7,6 +7,7 @@ import { Search, UserPlus, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useEffect } from "react";
+const sb = supabase as any;
 
 interface UserProfile {
   id: string;
@@ -35,7 +36,7 @@ export default function UserSearch() {
     }
 
     setIsLoading(true);
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from("profiles")
       .select("*")
       .ilike("username", `%${searchQuery}%`)
@@ -60,7 +61,7 @@ export default function UserSearch() {
       return;
     }
 
-    const { error } = await supabase
+    const { error } = await sb
       .from("friend_requests")
       .insert({
         sender_id: currentUserId,

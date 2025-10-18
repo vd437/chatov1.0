@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+const sb = supabase as any;
 
 interface FriendRequest {
   id: string;
@@ -48,7 +49,7 @@ export function FriendRequestsSection() {
     
     setCurrentUserId(user.id);
 
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from("friend_requests")
       .select(`
         id,
@@ -66,7 +67,7 @@ export function FriendRequestsSection() {
   };
 
   const handleAccept = async (requestId: string) => {
-    const { error } = await supabase
+    const { error } = await sb
       .from("friend_requests")
       .update({ status: "accepted" })
       .eq("id", requestId);
@@ -80,7 +81,7 @@ export function FriendRequestsSection() {
   };
 
   const handleReject = async (requestId: string) => {
-    const { error } = await supabase
+    const { error } = await sb
       .from("friend_requests")
       .update({ status: "rejected" })
       .eq("id", requestId);

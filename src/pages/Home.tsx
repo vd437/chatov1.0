@@ -1,28 +1,34 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import { LogOut, MessageSquare, PartyPopper, Users, Send, Shield, User } from "lucide-react";
 
 export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("isAuthenticated");
-    if (!isAuthenticated) {
-      navigate("/login");
-    } else {
-      // After showing the welcome page once, clear the new user flag
-      // and navigate to chats on next visit
-      const timer = setTimeout(() => {
-        localStorage.removeItem("isNewUser");
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    }
+    let isMounted = true;
+    const init = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (isMounted && !session?.user) {
+        navigate("/login");
+      }
+    };
+    init();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session?.user) {
+        navigate("/login");
+      }
+    });
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.clear();
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate("/login");
   };
 

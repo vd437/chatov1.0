@@ -80,7 +80,10 @@ export default function Signup() {
         return;
       }
 
-      if (data?.user) {
+      if (data?.session) {
+        toast.success("Account created!");
+        navigate("/home");
+      } else if (data?.user) {
         // Store email for verification page
         localStorage.setItem("pendingEmail", email);
         toast.success("Account created! Please verify your email.");

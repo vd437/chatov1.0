@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Check, X, Ban } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+const sb = supabase as any;
 
 interface MessageRequest {
   id: string;
@@ -49,7 +50,7 @@ export function MessageRequestsSection() {
     
     setCurrentUserId(user.id);
 
-    const { data, error } = await supabase
+    const { data, error } = await sb
       .from("message_requests")
       .select(`
         id,
@@ -68,7 +69,7 @@ export function MessageRequestsSection() {
   };
 
   const handleAccept = async (requestId: string) => {
-    const { error } = await supabase
+    const { error } = await sb
       .from("message_requests")
       .update({ status: "accepted" })
       .eq("id", requestId);
@@ -83,7 +84,7 @@ export function MessageRequestsSection() {
 
   const handleBlock = async (requestId: string, senderId: string) => {
     // Update message request status
-    const { error: requestError } = await supabase
+    const { error: requestError } = await sb
       .from("message_requests")
       .update({ status: "blocked" })
       .eq("id", requestId);
@@ -94,7 +95,7 @@ export function MessageRequestsSection() {
     }
 
     // Add to blocks table
-    const { error: blockError } = await supabase
+    const { error: blockError } = await sb
       .from("user_blocks")
       .insert({
         blocker_id: currentUserId,
@@ -110,7 +111,7 @@ export function MessageRequestsSection() {
   };
 
   const handleDelete = async (requestId: string) => {
-    const { error } = await supabase
+    const { error } = await sb
       .from("message_requests")
       .delete()
       .eq("id", requestId);
