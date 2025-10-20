@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Users, Plus, Search, Crown, Settings as SettingsIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,63 +12,116 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Group {
   id: string;
   name: string;
-  avatar?: string;
-  memberCount: number;
-  isAdmin: boolean;
-  unreadCount?: number;
-  lastActivity: string;
+  avatar_url?: string;
+  member_count: number;
+  is_admin: boolean;
+  created_at: string;
 }
-
-const mockGroups: Group[] = [
-  {
-    id: "1",
-    name: "Family Group",
-    memberCount: 8,
-    isAdmin: true,
-    unreadCount: 5,
-    lastActivity: "2 min ago",
-  },
-  {
-    id: "2",
-    name: "Work Team",
-    memberCount: 15,
-    isAdmin: false,
-    unreadCount: 12,
-    lastActivity: "1 hour ago",
-  },
-  {
-    id: "3",
-    name: "Book Club",
-    memberCount: 24,
-    isAdmin: false,
-    lastActivity: "Yesterday",
-  },
-  {
-    id: "4",
-    name: "Fitness Buddies",
-    memberCount: 10,
-    isAdmin: true,
-    lastActivity: "2 days ago",
-  },
-];
 
 const Groups = () => {
   const navigate = useNavigate();
-  const [groups] = useState(mockGroups);
+  const { toast } = useToast();
+  const [groups, setGroups] = useState<Group[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [newGroupName, setNewGroupName] = useState("");
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const getCurrentUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        setCurrentUserId(data.user.id);
+      }
+    };
+    getCurrentUser();
+  }, []);
+
+  useEffect(() => {
+    if (!currentUserId) return;
+    fetchGroups();
+  }, [currentUserId]);
+
+  const fetchGroups = async () => {
+    const { data: memberGroups } = await supabase
+      .from("group_members")
+      .select(`
+        is_admin,
+        groups (
+          id,
+          name,
+          avatar_url,
+          created_at
+        )
+      `)
+      .eq("user_id", currentUserId);
+
+    if (memberGroups) {
+      const groupsWithCounts = await Promise.all(
+        memberGroups.map(async (mg: any) => {
+          const { count } = await supabase
+            .from("group_members")
+            .select("*", { count: "exact", head: true })
+            .eq("group_id", mg.groups.id);
+
+          return {
+            id: mg.groups.id,
+            name: mg.groups.name,
+            avatar_url: mg.groups.avatar_url,
+            member_count: count || 0,
+            is_admin: mg.is_admin,
+            created_at: mg.groups.created_at,
+          };
+        })
+      );
+      setGroups(groupsWithCounts);
+    }
+  };
 
   const filteredGroups = groups.filter((group) =>
     group.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCreateGroup = () => {
-    // Logic to create a new group
-    setNewGroupName("");
+  const handleCreateGroup = async () => {
+    if (!newGroupName.trim()) return;
+
+    const { data: group, error } = await supabase
+      .from("groups")
+      .insert({ name: newGroupName, created_by: currentUserId })
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create group",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (group) {
+      await supabase.from("group_members").insert({
+        group_id: group.id,
+        user_id: currentUserId,
+        is_admin: true,
+      });
+
+      toast({
+        title: "Success",
+        description: "Group created successfully",
+      });
+
+      setNewGroupName("");
+      setIsDialogOpen(false);
+      fetchGroups();
+    }
   };
 
   return (
@@ -80,7 +133,7 @@ const Groups = () => {
               <Users className="h-6 w-6 text-primary" />
               <h1 className="text-2xl font-bold">Groups</h1>
             </div>
-            <Dialog>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="gap-2">
                   <Plus className="h-4 w-4" />
@@ -96,6 +149,7 @@ const Groups = () => {
                     placeholder="Group name"
                     value={newGroupName}
                     onChange={(e) => setNewGroupName(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleCreateGroup()}
                   />
                   <Button className="w-full" onClick={handleCreateGroup}>
                     Create
@@ -124,7 +178,7 @@ const Groups = () => {
             >
               <div className="flex items-center gap-4">
                 <Avatar className="h-14 w-14">
-                  <AvatarImage src={group.avatar} />
+                  <AvatarImage src={group.avatar_url} />
                   <AvatarFallback className="bg-gradient-primary text-primary-foreground">
                     {group.name.charAt(0)}
                   </AvatarFallback>
@@ -132,24 +186,17 @@ const Groups = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-semibold truncate">{group.name}</h3>
-                    {group.isAdmin && (
+                    {group.is_admin && (
                       <Crown className="h-4 w-4 text-accent" />
                     )}
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="h-3 w-3" />
-                    <span>{group.memberCount} members</span>
-                    <span>•</span>
-                    <span>{group.lastActivity}</span>
+                    <span>{group.member_count} members</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {group.unreadCount && (
-                    <Badge className="bg-primary text-primary-foreground">
-                      {group.unreadCount}
-                    </Badge>
-                  )}
-                  {group.isAdmin && (
+                  {group.is_admin && (
                     <Button
                       variant="ghost"
                       size="icon"
