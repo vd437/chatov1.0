@@ -23,6 +23,8 @@ import UserProfile from "./pages/UserProfile";
 import Notifications from "./pages/Notifications";
 import Groups from "./pages/Groups";
 import GroupDetail from "./pages/GroupDetail";
+import CreateGroup from "./pages/CreateGroup";
+import GroupProfile from "./pages/GroupProfile";
 import Friends from "./pages/Friends";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -57,8 +59,10 @@ const App = () => (
             <Route path="/user-search" element={<UserSearch />} />
             <Route path="/friends" element={<Friends />} />
             <Route path="/notifications" element={<Notifications />} />
-            <Route path="/groups" element={<Groups />} />
-            <Route path="/group/:groupId" element={<GroupDetail />} />
+          <Route path="/groups" element={<Groups />} />
+          <Route path="/create-group" element={<CreateGroup />} />
+          <Route path="/group/:groupId" element={<GroupDetail />} />
+          <Route path="/group/:groupId/profile" element={<GroupProfile />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
           

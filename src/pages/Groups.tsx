@@ -5,13 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,9 +22,7 @@ const Groups = () => {
   const { toast } = useToast();
   const [groups, setGroups] = useState<Group[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [newGroupName, setNewGroupName] = useState("");
   const [currentUserId, setCurrentUserId] = useState<string>("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     const getCurrentUser = async () => {
@@ -88,42 +79,6 @@ const Groups = () => {
     group.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCreateGroup = async () => {
-    if (!newGroupName.trim()) return;
-
-    const { data: group, error } = await supabase
-      .from("groups")
-      .insert({ name: newGroupName, created_by: currentUserId })
-      .select()
-      .single();
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create group",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (group) {
-      await supabase.from("group_members").insert({
-        group_id: group.id,
-        user_id: currentUserId,
-        is_admin: true,
-      });
-
-      toast({
-        title: "Success",
-        description: "Group created successfully",
-      });
-
-      setNewGroupName("");
-      setIsDialogOpen(false);
-      fetchGroups();
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto">
@@ -133,30 +88,14 @@ const Groups = () => {
               <Users className="h-6 w-6 text-primary" />
               <h1 className="text-2xl font-bold">Groups</h1>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Create Group
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Group</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <Input
-                    placeholder="Group name"
-                    value={newGroupName}
-                    onChange={(e) => setNewGroupName(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleCreateGroup()}
-                  />
-                  <Button className="w-full" onClick={handleCreateGroup}>
-                    Create
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Button
+              size="sm"
+              className="gap-2"
+              onClick={() => navigate("/create-group")}
+            >
+              <Plus className="h-4 w-4" />
+              Create Group
+            </Button>
           </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />

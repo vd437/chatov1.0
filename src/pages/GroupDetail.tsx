@@ -171,17 +171,22 @@ const GroupDetail = () => {
           <Button variant="ghost" size="icon" onClick={() => navigate("/groups")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={groupInfo.avatar_url} />
-            <AvatarFallback className="bg-gradient-primary text-primary-foreground">
-              {groupInfo.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <h2 className="font-semibold truncate">{groupInfo.name}</h2>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Users className="h-3 w-3" />
-              <span>{groupInfo.member_count} members</span>
+          <div
+            className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
+            onClick={() => navigate(`/group/${groupId}/profile`)}
+          >
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={groupInfo.avatar_url} />
+              <AvatarFallback className="bg-gradient-primary text-primary-foreground">
+                {groupInfo.name.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-semibold truncate">{groupInfo.name}</h2>
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Users className="h-3 w-3" />
+                <span>{groupInfo.member_count} members</span>
+              </div>
             </div>
           </div>
           {groupInfo.is_admin && (

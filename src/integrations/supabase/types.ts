@@ -56,25 +56,130 @@ export type Database = {
           },
         ]
       }
+      group_invites: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          expires_at: string | null
+          group_id: string
+          id: string
+          invite_code: string
+          max_uses: number | null
+          uses_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          expires_at?: string | null
+          group_id: string
+          id?: string
+          invite_code: string
+          max_uses?: number | null
+          uses_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          expires_at?: string | null
+          group_id?: string
+          id?: string
+          invite_code?: string
+          max_uses?: number | null
+          uses_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_invites_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_invites_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_join_requests: {
+        Row: {
+          created_at: string | null
+          group_id: string
+          id: string
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          group_id: string
+          id?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          group_id?: string
+          id?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_join_requests_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_join_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_members: {
         Row: {
+          can_ban_members: boolean | null
+          can_edit_settings: boolean | null
+          can_kick_members: boolean | null
           group_id: string
           id: string
           is_admin: boolean
+          is_banned: boolean | null
+          is_moderator: boolean | null
           joined_at: string
           user_id: string
         }
         Insert: {
+          can_ban_members?: boolean | null
+          can_edit_settings?: boolean | null
+          can_kick_members?: boolean | null
           group_id: string
           id?: string
           is_admin?: boolean
+          is_banned?: boolean | null
+          is_moderator?: boolean | null
           joined_at?: string
           user_id: string
         }
         Update: {
+          can_ban_members?: boolean | null
+          can_edit_settings?: boolean | null
+          can_kick_members?: boolean | null
           group_id?: string
           id?: string
           is_admin?: boolean
+          is_banned?: boolean | null
+          is_moderator?: boolean | null
           joined_at?: string
           user_id?: string
         }
@@ -122,27 +227,45 @@ export type Database = {
       }
       groups: {
         Row: {
+          allow_members_add_others: boolean | null
+          allow_members_edit_settings: boolean | null
+          allow_members_pin_messages: boolean | null
+          allow_members_send_messages: boolean | null
           avatar_url: string | null
           created_at: string
           created_by: string
+          description: string | null
           id: string
           name: string
+          require_moderator_approval: boolean | null
           updated_at: string
         }
         Insert: {
+          allow_members_add_others?: boolean | null
+          allow_members_edit_settings?: boolean | null
+          allow_members_pin_messages?: boolean | null
+          allow_members_send_messages?: boolean | null
           avatar_url?: string | null
           created_at?: string
           created_by: string
+          description?: string | null
           id?: string
           name: string
+          require_moderator_approval?: boolean | null
           updated_at?: string
         }
         Update: {
+          allow_members_add_others?: boolean | null
+          allow_members_edit_settings?: boolean | null
+          allow_members_pin_messages?: boolean | null
+          allow_members_send_messages?: boolean | null
           avatar_url?: string | null
           created_at?: string
           created_by?: string
+          description?: string | null
           id?: string
           name?: string
+          require_moderator_approval?: boolean | null
           updated_at?: string
         }
         Relationships: []
