@@ -18,15 +18,20 @@ import Stories from "./pages/Stories";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import Notifications from "./pages/Notifications";
-import Groups from "./pages/Groups";
-import GroupDetail from "./pages/GroupDetail";
-import CreateGroup from "./pages/CreateGroup";
-import GroupProfile from "./pages/GroupProfile";
 import Friends from "./pages/Friends";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+
+// Local-only auth + data
 import MockAuth from "./pages/MockAuth";
+import MockGroups from "./pages/MockGroups";
+import MockCreateGroup from "./pages/MockCreateGroup";
+import MockGroupDetail from "./pages/MockGroupDetail";
+import MockGroupProfile from "./pages/MockGroupProfile";
+import JoinGroup from "./pages/JoinGroup";
+
 import { MockAuthProvider } from "@/contexts/MockAuthContext";
+import { MockDataProvider } from "@/contexts/MockDataContext";
 
 const queryClient = new QueryClient();
 
@@ -36,44 +41,53 @@ const App = () => (
       <Toaster />
       <Sonner />
       <MockAuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
+        <MockDataProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
 
-            {/* Local-only auth (no backend) */}
-            <Route path="/auth" element={<MockAuth />} />
-            <Route path="/login" element={<Navigate to="/auth?mode=login" replace />} />
-            <Route path="/signup" element={<Navigate to="/auth?mode=signup" replace />} />
+              {/* Local-only auth + data (no backend) */}
+              <Route path="/auth" element={<MockAuth />} />
+              <Route path="/login" element={<Navigate to="/auth?mode=login" replace />} />
+              <Route path="/signup" element={<Navigate to="/auth?mode=signup" replace />} />
 
-            {/* Legacy verification routes (kept, but no longer required in local mode) */}
-            <Route path="/verification" element={<Verification />} />
-            <Route path="/email-link" element={<EmailLink />} />
-            <Route path="/email-verification" element={<EmailVerification />} />
+              {/* Join group by invite link */}
+              <Route path="/join-group" element={<JoinGroup />} />
+              <Route path="/join-group/:inviteCode" element={<JoinGroup />} />
 
-            {/* Main app routes */}
-            <Route element={<MainLayout />}>
-              <Route path="/home" element={<Home />} />
-              <Route path="/chats" element={<ChatList />} />
-              <Route path="/chat/:chatId" element={<ChatDetail />} />
-              <Route path="/forward-message" element={<ForwardMessage />} />
-              <Route path="/report/:chatId" element={<Report />} />
-              <Route path="/stories" element={<Stories />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/user/:userId" element={<UserProfile />} />
-              <Route path="/user-search" element={<UserSearch />} />
-              <Route path="/friends" element={<Friends />} />
-              <Route path="/notifications" element={<Notifications />} />
-              <Route path="/groups" element={<Groups />} />
-              <Route path="/create-group" element={<CreateGroup />} />
-              <Route path="/group/:groupId" element={<GroupDetail />} />
-              <Route path="/group/:groupId/profile" element={<GroupProfile />} />
-              <Route path="/settings" element={<Settings />} />
-            </Route>
+              {/* Legacy verification routes (kept, but no longer required in local mode) */}
+              <Route path="/verification" element={<Verification />} />
+              <Route path="/email-link" element={<EmailLink />} />
+              <Route path="/email-verification" element={<EmailVerification />} />
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
+              {/* Main app routes */}
+              <Route element={<MainLayout />}>
+                <Route path="/home" element={<Home />} />
+                <Route path="/chats" element={<ChatList />} />
+                <Route path="/chat/:chatId" element={<ChatDetail />} />
+                <Route path="/forward-message" element={<ForwardMessage />} />
+                <Route path="/report/:chatId" element={<Report />} />
+                <Route path="/stories" element={<Stories />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/user/:userId" element={<UserProfile />} />
+                <Route path="/user-search" element={<UserSearch />} />
+                <Route path="/friends" element={<Friends />} />
+                <Route path="/notifications" element={<Notifications />} />
+
+                {/* Groups (local) */}
+                <Route path="/groups" element={<MockGroups />} />
+                <Route path="/create-group" element={<MockCreateGroup />} />
+                <Route path="/group/:groupId" element={<MockGroupDetail />} />
+                <Route path="/group/:groupId/profile" element={<MockGroupProfile />} />
+
+                <Route path="/settings" element={<Settings />} />
+              </Route>
+
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </MockDataProvider>
       </MockAuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

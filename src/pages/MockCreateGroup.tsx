@@ -63,46 +63,51 @@ const MockCreateGroup = () => {
       return;
     }
 
-    const newGroup = createGroup({
-      name: groupName,
-      description: groupDescription,
-      avatar_url: avatarPreview || undefined,
-      created_by: user.id,
-      allow_members_edit_settings: allowMembersEditSettings,
-      allow_members_pin_messages: allowMembersPinMessages,
-      allow_members_send_messages: allowMembersSendMessages,
-      allow_members_add_others: allowMembersAddOthers,
-      require_moderator_approval: requireModeratorApproval,
-    });
+    try {
+      const newGroup = createGroup({
+        name: groupName,
+        description: groupDescription,
+        avatar_url: avatarPreview || undefined,
+        created_by: user.id,
+        allow_members_edit_settings: allowMembersEditSettings,
+        allow_members_pin_messages: allowMembersPinMessages,
+        allow_members_send_messages: allowMembersSendMessages,
+        allow_members_add_others: allowMembersAddOthers,
+        require_moderator_approval: requireModeratorApproval,
+      });
 
-    // Add creator as admin
-    addGroupMember({
-      group_id: newGroup.id,
-      user_id: user.id,
-      is_admin: true,
-      is_moderator: false,
-      can_edit_settings: true,
-      can_ban_members: true,
-      can_kick_members: true,
-      is_banned: false,
-    });
-
-    // Add selected friends as members
-    selectedFriends.forEach((friendId) => {
+      // Add creator as admin
       addGroupMember({
         group_id: newGroup.id,
-        user_id: friendId,
-        is_admin: false,
+        user_id: user.id,
+        is_admin: true,
         is_moderator: false,
-        can_edit_settings: false,
-        can_ban_members: false,
-        can_kick_members: false,
+        can_edit_settings: true,
+        can_ban_members: true,
+        can_kick_members: true,
         is_banned: false,
       });
-    });
 
-    toast.success("Group created successfully!");
-    navigate(`/mock-group/${newGroup.id}`);
+      // Add selected friends as members
+      selectedFriends.forEach((friendId) => {
+        addGroupMember({
+          group_id: newGroup.id,
+          user_id: friendId,
+          is_admin: false,
+          is_moderator: false,
+          can_edit_settings: false,
+          can_ban_members: false,
+          can_kick_members: false,
+          is_banned: false,
+        });
+      });
+
+      toast.success("Group created successfully!");
+      navigate(`/group/${newGroup.id}`);
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to create group");
+    }
   };
 
   return (
@@ -113,7 +118,7 @@ const MockCreateGroup = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => (step > 1 ? setStep(step - 1) : navigate("/mock-groups"))}
+              onClick={() => (step > 1 ? setStep(step - 1) : navigate("/groups"))}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>

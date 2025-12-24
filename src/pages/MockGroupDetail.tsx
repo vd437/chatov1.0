@@ -68,7 +68,7 @@ const MockGroupDetail = () => {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">Group not found</h2>
-          <Button onClick={() => navigate("/mock-groups")}>Back to Groups</Button>
+          <Button onClick={() => navigate("/groups")}>Back to Groups</Button>
         </div>
       </div>
     );
@@ -78,12 +78,12 @@ const MockGroupDetail = () => {
     <div className="flex flex-col h-screen bg-background">
       <div className="sticky top-0 z-10 bg-card border-b border-border p-4">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/mock-groups")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/groups")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div
             className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer"
-            onClick={() => navigate(`/mock-group/${groupId}/profile`)}
+            onClick={() => navigate(`/group/${groupId}/profile`)}
           >
             <Avatar className="h-10 w-10">
               <AvatarImage src={group.avatar_url} />
@@ -103,7 +103,7 @@ const MockGroupDetail = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate(`/mock-group/${groupId}/profile`)}
+              onClick={() => navigate(`/group/${groupId}/profile`)}
             >
               <SettingsIcon className="h-5 w-5" />
             </Button>
