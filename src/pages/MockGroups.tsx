@@ -45,7 +45,7 @@ const MockGroups = () => {
             <Button
               size="sm"
               className="gap-2"
-              onClick={() => navigate("/mock-create-group")}
+              onClick={() => navigate("/create-group")}
             >
               <Plus className="h-4 w-4" />
               Create Group
@@ -70,7 +70,7 @@ const MockGroups = () => {
               <p className="text-sm text-muted-foreground mb-4">
                 Create a group to start chatting with friends
               </p>
-              <Button onClick={() => navigate("/mock-create-group")}>
+              <Button onClick={() => navigate("/create-group")}>
                 <Plus className="h-4 w-4 mr-2" />
                 Create Group
               </Button>
@@ -80,7 +80,7 @@ const MockGroups = () => {
             <div
               key={group.id}
               className="bg-card rounded-lg border border-border p-4 hover:shadow-soft transition-all cursor-pointer"
-              onClick={() => navigate(`/mock-group/${group.id}`)}
+              onClick={() => navigate(`/group/${group.id}`)}
             >
               <div className="flex items-center gap-4">
                 <Avatar className="h-14 w-14">
@@ -108,7 +108,7 @@ const MockGroups = () => {
                       size="icon"
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate(`/mock-group/${group.id}/profile`);
+                        navigate(`/group/${group.id}/profile`);
                       }}
                     >
                       <SettingsIcon className="h-4 w-4" />

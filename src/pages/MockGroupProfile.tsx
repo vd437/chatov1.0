@@ -139,7 +139,7 @@ const MockGroupProfile = () => {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">Group not found</h2>
-          <Button onClick={() => navigate("/mock-groups")}>Back to Groups</Button>
+          <Button onClick={() => navigate("/groups")}>Back to Groups</Button>
         </div>
       </div>
     );
@@ -153,7 +153,7 @@ const MockGroupProfile = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate(`/mock-group/${groupId}`)}
+              onClick={() => navigate(`/group/${groupId}`)}
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
