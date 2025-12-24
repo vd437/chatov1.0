@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AuthLayout } from "@/components/AuthLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,9 +9,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useMockAuth } from "@/contexts/MockAuthContext";
 
+type AuthTab = "login" | "signup";
+
 export default function MockAuth() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, signup } = useMockAuth();
+
+  const preferredTab = useMemo<AuthTab>(() => {
+    const mode = new URLSearchParams(location.search).get("mode");
+    return mode === "signup" ? "signup" : "login";
+  }, [location.search]);
+
+  const [tab, setTab] = useState<AuthTab>(preferredTab);
+
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [signupUsername, setSignupUsername] = useState("");
@@ -21,17 +32,24 @@ export default function MockAuth() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    setTab(preferredTab);
+  }, [preferredTab]);
+
+  useEffect(() => {
+    document.title = tab === "signup" ? "Sign up | chato chato" : "Log in | chato chato";
+  }, [tab]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!loginEmail || !loginPassword) {
+    if (!loginEmail.trim() || !loginPassword) {
       toast.error("Please fill in all fields");
       return;
     }
 
     setIsLoading(true);
-
-    const { error } = await login(loginEmail, loginPassword);
+    const { error } = await login(loginEmail.trim(), loginPassword);
 
     if (error) {
       toast.error(error);
@@ -73,8 +91,7 @@ export default function MockAuth() {
     }
 
     setIsLoading(true);
-
-    const { error } = await signup(signupEmail, signupPassword, signupUsername);
+    const { error } = await signup(signupEmail.trim(), signupPassword, signupUsername);
 
     if (error) {
       toast.error(error);
@@ -89,21 +106,25 @@ export default function MockAuth() {
 
   return (
     <AuthLayout>
-      <div className="space-y-6">
-        <div className="space-y-2 text-center">
-          <h2 className="text-2xl font-semibold">Welcome</h2>
+      <main className="space-y-6">
+        <header className="space-y-2 text-center">
+          <h1 className="text-2xl font-semibold">Welcome</h1>
           <p className="text-muted-foreground text-sm">
             Log in or create an account to get started
           </p>
           <div className="bg-accent/20 rounded-lg p-3 text-xs text-muted-foreground">
-            Demo Mode - Data stored locally in your browser
+            Local Mode — data stored in your browser
           </div>
-        </div>
+        </header>
 
-        <Tabs defaultValue="login" className="w-full">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as AuthTab)} className="w-full">
           <TabsList className="grid w-full grid-cols-2 h-12">
-            <TabsTrigger value="login" className="h-10">Log In</TabsTrigger>
-            <TabsTrigger value="signup" className="h-10">Sign Up</TabsTrigger>
+            <TabsTrigger value="login" className="h-10">
+              Log In
+            </TabsTrigger>
+            <TabsTrigger value="signup" className="h-10">
+              Sign Up
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="login" className="space-y-4 mt-4">
@@ -227,7 +248,8 @@ export default function MockAuth() {
             </form>
           </TabsContent>
         </Tabs>
-      </div>
+      </main>
     </AuthLayout>
   );
 }
+

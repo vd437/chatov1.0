@@ -1,74 +1,59 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { LogOut, MessageSquare, PartyPopper, Users, Send, Shield, User } from "lucide-react";
+import { LogOut, MessageSquare, PartyPopper, Users, User } from "lucide-react";
+import { useMockAuth } from "@/contexts/MockAuthContext";
 
 export default function Home() {
   const navigate = useNavigate();
+  const { user, isLoading, logout } = useMockAuth();
 
   useEffect(() => {
-    let isMounted = true;
-    const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (isMounted && !session?.user) {
-        navigate("/login");
-      }
-    };
-    init();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session?.user) {
-        navigate("/login");
-      }
-    });
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
+    if (isLoading) return;
+    if (!user) navigate("/auth");
+  }, [isLoading, user, navigate]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/login");
+  const handleLogout = () => {
+    logout();
+    navigate("/auth");
   };
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+        <header className="flex justify-between items-center mb-8">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow">
               <MessageSquare className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-              chato chato
-            </h1>
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                chato chato
+              </h1>
+              {user ? (
+                <p className="text-sm text-muted-foreground">
+                  Signed in as <span className="font-medium">{user.username}</span>
+                </p>
+              ) : null}
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              onClick={() => navigate("/profile")}
-              variant="outline"
-              className="gap-2"
-            >
+            <Button onClick={() => navigate("/profile")} variant="outline" className="gap-2">
               <User className="w-4 h-4" />
               Profile
             </Button>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="gap-2"
-            >
+            <Button onClick={handleLogout} variant="outline" className="gap-2">
               <LogOut className="w-4 h-4" />
               Logout
             </Button>
           </div>
-        </div>
+        </header>
 
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-card rounded-3xl shadow-card border border-border p-8">
+        <main className="max-w-4xl mx-auto">
+          <section className="bg-card rounded-3xl shadow-card border border-border p-8">
             <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button 
+              <Button
                 variant="outline"
                 className="h-24 flex flex-col gap-2"
                 onClick={() => navigate("/chats")}
@@ -76,7 +61,7 @@ export default function Home() {
                 <MessageSquare className="w-6 h-6" />
                 <span>Messages</span>
               </Button>
-              <Button 
+              <Button
                 variant="outline"
                 className="h-24 flex flex-col gap-2"
                 onClick={() => navigate("/stories")}
@@ -84,7 +69,7 @@ export default function Home() {
                 <PartyPopper className="w-6 h-6" />
                 <span>Stories</span>
               </Button>
-              <Button 
+              <Button
                 variant="outline"
                 className="h-24 flex flex-col gap-2"
                 onClick={() => navigate("/friends")}
@@ -93,9 +78,10 @@ export default function Home() {
                 <span>Friends</span>
               </Button>
             </div>
-          </div>
-        </div>
+          </section>
+        </main>
       </div>
     </div>
   );
 }
+

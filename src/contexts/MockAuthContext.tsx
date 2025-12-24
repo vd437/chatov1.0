@@ -31,6 +31,9 @@ export function MockAuthProvider({ children }: { children: ReactNode }) {
     const storedUser = localStorage.getItem(CURRENT_USER_KEY);
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+      localStorage.setItem("isAuthenticated", "true");
+    } else {
+      localStorage.removeItem("isAuthenticated");
     }
     setIsLoading(false);
   }, []);
@@ -58,10 +61,16 @@ export function MockAuthProvider({ children }: { children: ReactNode }) {
 
     setUser(userRecord.user);
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(userRecord.user));
+    localStorage.setItem("isAuthenticated", "true");
+    localStorage.removeItem("isNewUser");
     return {};
   };
 
-  const signup = async (email: string, password: string, username: string): Promise<{ error?: string }> => {
+  const signup = async (
+    email: string,
+    password: string,
+    username: string
+  ): Promise<{ error?: string }> => {
     const users = getUsers();
     const emailLower = email.toLowerCase();
 
@@ -89,12 +98,16 @@ export function MockAuthProvider({ children }: { children: ReactNode }) {
 
     setUser(newUser);
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
+    localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem("isNewUser", "true");
     return {};
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("isNewUser");
   };
 
   const updateProfile = (updates: Partial<MockUser>) => {
