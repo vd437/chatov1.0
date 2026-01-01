@@ -63,7 +63,7 @@ const App = () => (
 
               {/* Main app routes */}
               <Route element={<MainLayout />}>
-                <Route path="/home" element={<Home />} />
+                <Route path="/home" element={<Navigate to="/chats" replace />} />
                 <Route path="/chats" element={<ChatList />} />
                 <Route path="/chat/:chatId" element={<ChatDetail />} />
                 <Route path="/forward-message" element={<ForwardMessage />} />

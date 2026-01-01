@@ -29,12 +29,19 @@ interface GroupMember {
   joined_at: string;
 }
 
+interface MessageReaction {
+  userId: string;
+  emoji: string;
+  timestamp: string;
+}
+
 interface GroupMessage {
   id: string;
   group_id: string;
   sender_id: string;
   content: string;
   created_at: string;
+  reactions?: MessageReaction[];
 }
 
 interface Friend {
@@ -71,6 +78,9 @@ interface MockDataContextType {
   // Group Messages
   groupMessages: GroupMessage[];
   sendGroupMessage: (groupId: string, content: string) => GroupMessage | null;
+  addMessageReaction: (messageId: string, emoji: string) => void;
+  removeMessageReaction: (messageId: string) => void;
+  getMessageReactors: (messageId: string, emoji: string) => MockProfile[];
   getGroupMessages: (groupId: string) => GroupMessage[];
   
   // Friends
@@ -347,6 +357,41 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
       new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
 
+  const addMessageReaction = (messageId: string, emoji: string) => {
+    if (!user) return;
+    const updated = groupMessages.map((m) => {
+      if (m.id === messageId) {
+        const reactions = m.reactions || [];
+        // Remove existing reaction from this user
+        const filtered = reactions.filter(r => r.userId !== user.id);
+        // Add new reaction
+        filtered.push({ userId: user.id, emoji, timestamp: new Date().toISOString() });
+        return { ...m, reactions: filtered };
+      }
+      return m;
+    });
+    saveGroupMessages(updated);
+  };
+
+  const removeMessageReaction = (messageId: string) => {
+    if (!user) return;
+    const updated = groupMessages.map((m) => {
+      if (m.id === messageId) {
+        const reactions = (m.reactions || []).filter(r => r.userId !== user.id);
+        return { ...m, reactions };
+      }
+      return m;
+    });
+    saveGroupMessages(updated);
+  };
+
+  const getMessageReactors = (messageId: string, emoji: string): MockProfile[] => {
+    const message = groupMessages.find(m => m.id === messageId);
+    if (!message?.reactions) return [];
+    const reactorIds = message.reactions.filter(r => r.emoji === emoji).map(r => r.userId);
+    return profiles.filter(p => reactorIds.includes(p.id));
+  };
+
   // Friend functions
   const sendFriendRequest = (receiverId: string): Friend | null => {
     if (!user) return null;
@@ -423,6 +468,9 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
         groupMessages,
         sendGroupMessage,
         getGroupMessages,
+        addMessageReaction,
+        removeMessageReaction,
+        getMessageReactors,
         friends,
         sendFriendRequest,
         acceptFriendRequest,

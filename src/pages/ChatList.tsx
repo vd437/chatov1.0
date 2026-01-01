@@ -41,9 +41,9 @@ interface Chat {
 
 const mockChats: Chat[] = [
   {
-    id: "1",
+    id: "fake-user-1",
     name: "Sarah Johnson",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+    avatar: "https://i.pravatar.cc/150?u=sarah",
     lastMessage: "Hey! How are you doing?",
     timestamp: "2m ago",
     unread: 2,
@@ -52,9 +52,9 @@ const mockChats: Chat[] = [
     storySeenStatus: "unseen",
   },
   {
-    id: "2",
+    id: "fake-user-2",
     name: "Mike Chen",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike",
+    avatar: "https://i.pravatar.cc/150?u=mike",
     lastMessage: "Thanks for the help earlier!",
     timestamp: "1h ago",
     unread: 0,
@@ -63,9 +63,9 @@ const mockChats: Chat[] = [
     storySeenStatus: "seen",
   },
   {
-    id: "3",
+    id: "fake-user-3",
     name: "Emma Wilson",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emma",
+    avatar: "https://i.pravatar.cc/150?u=emma",
     lastMessage: "See you tomorrow 👋",
     timestamp: "3h ago",
     unread: 0,
@@ -74,9 +74,9 @@ const mockChats: Chat[] = [
     storySeenStatus: "none",
   },
   {
-    id: "4",
+    id: "fake-user-4",
     name: "Alex Turner",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+    avatar: "https://i.pravatar.cc/150?u=alex",
     lastMessage: "Did you see the photos?",
     timestamp: "1d ago",
     unread: 5,
