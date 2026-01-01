@@ -305,20 +305,76 @@ const MockGroupProfile = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="media" className="space-y-2">
-              <p className="text-center text-muted-foreground py-8">No images yet</p>
+            <TabsContent value="media" className="space-y-4">
+              <div className="grid grid-cols-3 gap-2">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="aspect-square bg-muted rounded-lg overflow-hidden">
+                    <img 
+                      src={`https://picsum.photos/seed/${groupId}${i}/200/200`}
+                      alt={`Shared image ${i}`}
+                      className="w-full h-full object-cover hover:scale-105 transition-transform cursor-pointer"
+                    />
+                  </div>
+                ))}
+              </div>
+              <p className="text-center text-xs text-muted-foreground">6 shared images</p>
             </TabsContent>
 
             <TabsContent value="files" className="space-y-2">
-              <p className="text-center text-muted-foreground py-8">No files yet</p>
+              {[
+                { name: "Project_Plan.pdf", size: "2.4 MB", date: "Dec 28" },
+                { name: "Meeting_Notes.docx", size: "156 KB", date: "Dec 26" },
+                { name: "Budget_2024.xlsx", size: "892 KB", date: "Dec 20" },
+              ].map((file, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-card rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <File className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm truncate">{file.name}</p>
+                    <p className="text-xs text-muted-foreground">{file.size} • {file.date}</p>
+                  </div>
+                </div>
+              ))}
             </TabsContent>
 
             <TabsContent value="audio" className="space-y-2">
-              <p className="text-center text-muted-foreground py-8">No audio files yet</p>
+              {[
+                { name: "Voice Message", duration: "0:32", sender: "Sarah" },
+                { name: "Voice Message", duration: "1:15", sender: "Mike" },
+              ].map((audio, i) => (
+                <div key={i} className="flex items-center gap-3 p-3 bg-card rounded-lg border border-border hover:bg-muted/50 cursor-pointer transition-colors">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Music className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm">{audio.name}</p>
+                    <p className="text-xs text-muted-foreground">{audio.duration} • from {audio.sender}</p>
+                  </div>
+                </div>
+              ))}
             </TabsContent>
 
             <TabsContent value="video" className="space-y-2">
-              <p className="text-center text-muted-foreground py-8">No videos yet</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[1, 2].map((i) => (
+                  <div key={i} className="aspect-video bg-muted rounded-lg overflow-hidden relative cursor-pointer group">
+                    <img 
+                      src={`https://picsum.photos/seed/video${i}/400/225`}
+                      alt={`Video ${i}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/50 transition-colors">
+                      <div className="w-10 h-10 rounded-full bg-white/90 flex items-center justify-center">
+                        <Video className="h-5 w-5 text-foreground ml-0.5" />
+                      </div>
+                    </div>
+                    <span className="absolute bottom-1 right-1 text-[10px] bg-black/70 text-white px-1 rounded">
+                      {i === 1 ? "2:34" : "0:58"}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </TabsContent>
 
             <TabsContent value="members" className="space-y-4">
@@ -339,9 +395,12 @@ const MockGroupProfile = () => {
                   return (
                     <div
                       key={member.id}
-                      className="flex items-center gap-3 p-3 bg-card rounded-lg border border-border"
+                      className="flex items-center gap-3 p-3 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors"
                     >
-                      <Avatar className="h-10 w-10">
+                      <Avatar 
+                        className="h-10 w-10 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all"
+                        onClick={() => !isCurrentUser && navigate(`/user/${member.user_id}`)}
+                      >
                         <AvatarImage src={profile?.avatar_url} />
                         <AvatarFallback className="bg-gradient-primary text-primary-foreground">
                           {profile?.username?.charAt(0) || "U"}
@@ -349,7 +408,10 @@ const MockGroupProfile = () => {
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium">
+                          <span 
+                            className={`font-medium ${!isCurrentUser ? "cursor-pointer hover:text-primary hover:underline" : ""}`}
+                            onClick={() => !isCurrentUser && navigate(`/user/${member.user_id}`)}
+                          >
                             {profile?.username || "Unknown"}
                             {isCurrentUser && " (You)"}
                           </span>

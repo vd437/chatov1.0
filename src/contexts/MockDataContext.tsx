@@ -93,9 +93,71 @@ const GROUP_MEMBERS_KEY = "mock_group_members";
 const GROUP_MESSAGES_KEY = "mock_group_messages";
 const FRIENDS_KEY = "mock_friends";
 const PROFILES_KEY = "mock_profiles";
+const DEMO_INITIALIZED_KEY = "mock_demo_initialized";
 
 function generateInviteCode(): string {
   return Math.random().toString(36).substring(2, 10).toUpperCase();
+}
+
+// Fake profiles for demo
+const FAKE_PROFILES: MockProfile[] = [
+  { id: "fake-user-1", username: "Sarah_Johnson", avatar_url: "https://i.pravatar.cc/150?u=sarah", bio: "Love hiking and photography 📸" },
+  { id: "fake-user-2", username: "Mike_Chen", avatar_url: "https://i.pravatar.cc/150?u=mike", bio: "Software developer | Coffee addict ☕" },
+  { id: "fake-user-3", username: "Emma_Wilson", avatar_url: "https://i.pravatar.cc/150?u=emma", bio: "Music enthusiast 🎵" },
+  { id: "fake-user-4", username: "Alex_Turner", avatar_url: "https://i.pravatar.cc/150?u=alex", bio: "Gamer and tech lover 🎮" },
+  { id: "fake-user-5", username: "Lisa_Park", avatar_url: "https://i.pravatar.cc/150?u=lisa", bio: "Travel blogger ✈️" },
+];
+
+const DEMO_GROUP_ID = "demo-group-123";
+
+function createDemoData(userId: string) {
+  const demoGroup: Group = {
+    id: DEMO_GROUP_ID,
+    name: "Friends Hangout",
+    description: "A place to chat with friends and share fun moments! 🎉",
+    avatar_url: "https://i.pravatar.cc/150?u=group",
+    created_by: "fake-user-1",
+    invite_code: "DEMO1234",
+    allow_members_edit_settings: false,
+    allow_members_pin_messages: true,
+    allow_members_send_messages: true,
+    allow_members_add_others: true,
+    require_moderator_approval: false,
+    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+  };
+
+  const demoMembers: GroupMember[] = [
+    { id: "member-1", group_id: DEMO_GROUP_ID, user_id: "fake-user-1", is_admin: true, is_moderator: true, can_edit_settings: true, can_ban_members: true, can_kick_members: true, is_banned: false, joined_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: "member-2", group_id: DEMO_GROUP_ID, user_id: "fake-user-2", is_admin: false, is_moderator: true, can_edit_settings: true, can_ban_members: false, can_kick_members: true, is_banned: false, joined_at: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: "member-3", group_id: DEMO_GROUP_ID, user_id: "fake-user-3", is_admin: false, is_moderator: false, can_edit_settings: false, can_ban_members: false, can_kick_members: false, is_banned: false, joined_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: "member-4", group_id: DEMO_GROUP_ID, user_id: "fake-user-4", is_admin: false, is_moderator: false, can_edit_settings: false, can_ban_members: false, can_kick_members: false, is_banned: false, joined_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: "member-5", group_id: DEMO_GROUP_ID, user_id: "fake-user-5", is_admin: false, is_moderator: false, can_edit_settings: false, can_ban_members: false, can_kick_members: false, is_banned: false, joined_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+    { id: "member-current", group_id: DEMO_GROUP_ID, user_id: userId, is_admin: false, is_moderator: false, can_edit_settings: false, can_ban_members: false, can_kick_members: false, is_banned: false, joined_at: new Date().toISOString() },
+  ];
+
+  const now = Date.now();
+  const demoMessages: GroupMessage[] = [
+    { id: "msg-1", group_id: DEMO_GROUP_ID, sender_id: "fake-user-1", content: "Hey everyone! Welcome to the group! 👋", created_at: new Date(now - 2 * 60 * 60 * 1000).toISOString() },
+    { id: "msg-2", group_id: DEMO_GROUP_ID, sender_id: "fake-user-2", content: "Thanks for creating this Sarah! This is gonna be fun 🎉", created_at: new Date(now - 1.9 * 60 * 60 * 1000).toISOString() },
+    { id: "msg-3", group_id: DEMO_GROUP_ID, sender_id: "fake-user-3", content: "Hi all! What are we planning for this weekend?", created_at: new Date(now - 1.8 * 60 * 60 * 1000).toISOString() },
+    { id: "msg-4", group_id: DEMO_GROUP_ID, sender_id: "fake-user-4", content: "I was thinking maybe we could do a game night? 🎮", created_at: new Date(now - 1.5 * 60 * 60 * 1000).toISOString() },
+    { id: "msg-5", group_id: DEMO_GROUP_ID, sender_id: "fake-user-5", content: "That sounds awesome! Count me in!", created_at: new Date(now - 1.2 * 60 * 60 * 1000).toISOString() },
+    { id: "msg-6", group_id: DEMO_GROUP_ID, sender_id: "fake-user-1", content: "Game night sounds perfect! Should we do it at my place?", created_at: new Date(now - 1 * 60 * 60 * 1000).toISOString() },
+    { id: "msg-7", group_id: DEMO_GROUP_ID, sender_id: "fake-user-2", content: "Works for me! I'll bring some snacks 🍕", created_at: new Date(now - 45 * 60 * 1000).toISOString() },
+    { id: "msg-8", group_id: DEMO_GROUP_ID, sender_id: "fake-user-3", content: "I can bring drinks!", created_at: new Date(now - 30 * 60 * 1000).toISOString() },
+    { id: "msg-9", group_id: DEMO_GROUP_ID, sender_id: "fake-user-4", content: "Let's set up a tournament! Winner gets bragging rights 😎", created_at: new Date(now - 15 * 60 * 1000).toISOString() },
+    { id: "msg-10", group_id: DEMO_GROUP_ID, sender_id: "fake-user-5", content: "You're on! I've been practicing 💪", created_at: new Date(now - 5 * 60 * 1000).toISOString() },
+  ];
+
+  const demoFriends: Friend[] = FAKE_PROFILES.map((profile, index) => ({
+    id: `friend-${index}`,
+    sender_id: profile.id,
+    receiver_id: userId,
+    status: "accepted" as const,
+    created_at: new Date(Date.now() - (index + 1) * 24 * 60 * 60 * 1000).toISOString(),
+  }));
+
+  return { demoGroup, demoMembers, demoMessages, demoFriends };
 }
 
 export function MockDataProvider({ children }: { children: ReactNode }) {
@@ -106,14 +168,76 @@ export function MockDataProvider({ children }: { children: ReactNode }) {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [profiles, setProfiles] = useState<MockProfile[]>([]);
 
-  // Load data from localStorage
+  // Load data from localStorage and initialize demo data
   useEffect(() => {
-    setGroups(JSON.parse(localStorage.getItem(GROUPS_KEY) || "[]"));
-    setGroupMembers(JSON.parse(localStorage.getItem(GROUP_MEMBERS_KEY) || "[]"));
-    setGroupMessages(JSON.parse(localStorage.getItem(GROUP_MESSAGES_KEY) || "[]"));
-    setFriends(JSON.parse(localStorage.getItem(FRIENDS_KEY) || "[]"));
-    setProfiles(JSON.parse(localStorage.getItem(PROFILES_KEY) || "[]"));
+    const storedGroups = JSON.parse(localStorage.getItem(GROUPS_KEY) || "[]");
+    const storedMembers = JSON.parse(localStorage.getItem(GROUP_MEMBERS_KEY) || "[]");
+    const storedMessages = JSON.parse(localStorage.getItem(GROUP_MESSAGES_KEY) || "[]");
+    const storedFriends = JSON.parse(localStorage.getItem(FRIENDS_KEY) || "[]");
+    const storedProfiles = JSON.parse(localStorage.getItem(PROFILES_KEY) || "[]");
+    
+    // Always ensure fake profiles exist
+    const existingFakeIds = storedProfiles.map((p: MockProfile) => p.id);
+    const missingFakeProfiles = FAKE_PROFILES.filter(fp => !existingFakeIds.includes(fp.id));
+    const updatedProfiles = [...storedProfiles, ...missingFakeProfiles];
+    
+    setGroups(storedGroups);
+    setGroupMembers(storedMembers);
+    setGroupMessages(storedMessages);
+    setFriends(storedFriends);
+    setProfiles(updatedProfiles);
+    
+    if (missingFakeProfiles.length > 0) {
+      localStorage.setItem(PROFILES_KEY, JSON.stringify(updatedProfiles));
+    }
   }, []);
+
+  // Initialize demo data when user logs in
+  useEffect(() => {
+    if (user) {
+      const demoInitialized = localStorage.getItem(DEMO_INITIALIZED_KEY);
+      if (!demoInitialized) {
+        const { demoGroup, demoMembers, demoMessages, demoFriends } = createDemoData(user.id);
+        
+        // Add demo group if not exists
+        const existingGroup = groups.find(g => g.id === DEMO_GROUP_ID);
+        if (!existingGroup) {
+          const newGroups = [...groups, demoGroup];
+          setGroups(newGroups);
+          localStorage.setItem(GROUPS_KEY, JSON.stringify(newGroups));
+        }
+        
+        // Add demo members
+        const existingMemberIds = groupMembers.map(m => m.id);
+        const newMembers = demoMembers.filter(m => !existingMemberIds.includes(m.id));
+        if (newMembers.length > 0) {
+          const updatedMembers = [...groupMembers, ...newMembers];
+          setGroupMembers(updatedMembers);
+          localStorage.setItem(GROUP_MEMBERS_KEY, JSON.stringify(updatedMembers));
+        }
+        
+        // Add demo messages
+        const existingMsgIds = groupMessages.map(m => m.id);
+        const newMessages = demoMessages.filter(m => !existingMsgIds.includes(m.id));
+        if (newMessages.length > 0) {
+          const updatedMessages = [...groupMessages, ...newMessages];
+          setGroupMessages(updatedMessages);
+          localStorage.setItem(GROUP_MESSAGES_KEY, JSON.stringify(updatedMessages));
+        }
+        
+        // Add demo friends
+        const existingFriendIds = friends.map(f => f.id);
+        const newFriends = demoFriends.filter(f => !existingFriendIds.includes(f.id));
+        if (newFriends.length > 0) {
+          const updatedFriends = [...friends, ...newFriends];
+          setFriends(updatedFriends);
+          localStorage.setItem(FRIENDS_KEY, JSON.stringify(updatedFriends));
+        }
+        
+        localStorage.setItem(DEMO_INITIALIZED_KEY, "true");
+      }
+    }
+  }, [user, groups, groupMembers, groupMessages, friends]);
 
   // Sync current user to profiles
   useEffect(() => {
