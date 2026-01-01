@@ -29,6 +29,7 @@ import MockCreateGroup from "./pages/MockCreateGroup";
 import MockGroupDetail from "./pages/MockGroupDetail";
 import MockGroupProfile from "./pages/MockGroupProfile";
 import JoinGroup from "./pages/JoinGroup";
+import MockUserProfile from "./pages/MockUserProfile";
 
 import { MockAuthProvider } from "@/contexts/MockAuthContext";
 import { MockDataProvider } from "@/contexts/MockDataContext";
@@ -69,7 +70,7 @@ const App = () => (
                 <Route path="/report/:chatId" element={<Report />} />
                 <Route path="/stories" element={<Stories />} />
                 <Route path="/profile" element={<Profile />} />
-                <Route path="/user/:userId" element={<UserProfile />} />
+                <Route path="/user/:userId" element={<MockUserProfile />} />
                 <Route path="/user-search" element={<UserSearch />} />
                 <Route path="/friends" element={<Friends />} />
                 <Route path="/notifications" element={<Notifications />} />
