@@ -67,10 +67,11 @@ const mockMessages: Message[] = [
 ];
 
 const mockChatInfo = {
-  "1": { name: "Sarah Johnson", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah", online: true },
-  "2": { name: "Mike Chen", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike", online: true },
-  "3": { name: "Emma Wilson", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Emma", online: false },
-  "4": { name: "Alex Turner", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex", online: false },
+  "fake-user-1": { name: "Sarah Johnson", avatar: "https://i.pravatar.cc/150?u=sarah", online: true },
+  "fake-user-2": { name: "Mike Chen", avatar: "https://i.pravatar.cc/150?u=mike", online: true },
+  "fake-user-3": { name: "Emma Wilson", avatar: "https://i.pravatar.cc/150?u=emma", online: false },
+  "fake-user-4": { name: "Alex Turner", avatar: "https://i.pravatar.cc/150?u=alex", online: false },
+  "fake-user-5": { name: "Lisa Park", avatar: "https://i.pravatar.cc/150?u=lisa", online: true },
 };
 
 export default function ChatDetail() {

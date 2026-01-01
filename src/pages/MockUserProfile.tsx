@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, MessageCircle, UserPlus, UserMinus, MoreVertical, Ban, Flag } from "lucide-react";
+import { ArrowLeft, MessageCircle, UserPlus, UserMinus, MoreVertical, Ban, Flag, Image as ImageIcon, FileText, Music, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +19,8 @@ const MockUserProfile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { user } = useMockAuth();
-  const { getProfile, friends, sendFriendRequest } = useMockData();
+  const { getProfile, friends, sendFriendRequest, groups, getGroupMembers } = useMockData();
+  const [activeTab, setActiveTab] = useState("images");
 
   const profile = getProfile(userId || "");
   
@@ -35,8 +38,17 @@ const MockUserProfile = () => {
         (f.receiver_id === user?.id && f.sender_id === userId))
   );
 
+  // Get mutual groups
+  const mutualGroups = groups.filter(group => {
+    const members = getGroupMembers(group.id);
+    const userIsMember = members.some(m => m.user_id === userId);
+    const currentUserIsMember = members.some(m => m.user_id === user?.id);
+    return userIsMember && currentUserIsMember;
+  });
+
   const handleSendMessage = () => {
-    toast.info("Direct messaging coming soon!");
+    // Navigate to chat with this user
+    navigate(`/chat/${userId}`);
   };
 
   const handleAddFriend = () => {
@@ -56,7 +68,7 @@ const MockUserProfile = () => {
   };
 
   const handleReport = () => {
-    toast.success("Report submitted");
+    navigate(`/report/${userId}`);
   };
 
   if (!profile) {
@@ -69,6 +81,16 @@ const MockUserProfile = () => {
       </div>
     );
   }
+
+  // Mock shared media data
+  const sharedImages = [
+    "https://picsum.photos/200/200?random=1",
+    "https://picsum.photos/200/200?random=2",
+    "https://picsum.photos/200/200?random=3",
+    "https://picsum.photos/200/200?random=4",
+    "https://picsum.photos/200/200?random=5",
+    "https://picsum.photos/200/200?random=6",
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -142,38 +164,93 @@ const MockUserProfile = () => {
             )}
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-3 gap-8 mt-8 p-6 bg-card rounded-xl border border-border w-full max-w-sm">
+          {/* Stats - Only Groups count */}
+          <div className="flex justify-center gap-8 mt-8 p-6 bg-card rounded-xl border border-border w-full max-w-sm">
             <div className="text-center">
-              <p className="text-2xl font-bold text-primary">12</p>
-              <p className="text-xs text-muted-foreground">Friends</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-primary">5</p>
-              <p className="text-xs text-muted-foreground">Groups</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-primary">24</p>
-              <p className="text-xs text-muted-foreground">Posts</p>
+              <p className="text-2xl font-bold text-primary">{mutualGroups.length}</p>
+              <p className="text-xs text-muted-foreground">Mutual Groups</p>
             </div>
           </div>
 
-          {/* Mutual Groups */}
+          {/* Shared Media Tabs */}
           <div className="mt-8 w-full max-w-sm">
-            <h3 className="text-sm font-semibold text-muted-foreground mb-3">Mutual Groups</h3>
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 p-3 bg-card rounded-lg border border-border">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src="https://i.pravatar.cc/150?u=group" />
-                  <AvatarFallback className="bg-primary text-primary-foreground">F</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm">Friends Hangout</p>
-                  <p className="text-xs text-muted-foreground">6 members</p>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="images" className="gap-1">
+                  <ImageIcon className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="files" className="gap-1">
+                  <FileText className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="audio" className="gap-1">
+                  <Music className="h-4 w-4" />
+                </TabsTrigger>
+                <TabsTrigger value="video" className="gap-1">
+                  <Video className="h-4 w-4" />
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="images" className="mt-4">
+                <div className="grid grid-cols-3 gap-1">
+                  {sharedImages.map((img, index) => (
+                    <div key={index} className="aspect-square rounded-lg overflow-hidden bg-muted">
+                      <img src={img} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
                 </div>
+              </TabsContent>
+
+              <TabsContent value="files" className="mt-4">
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No shared files</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="audio" className="mt-4">
+                <div className="text-center py-8 text-muted-foreground">
+                  <Music className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No shared audio</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="video" className="mt-4">
+                <div className="text-center py-8 text-muted-foreground">
+                  <Video className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No shared videos</p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Mutual Groups */}
+          {mutualGroups.length > 0 && (
+            <div className="mt-8 w-full max-w-sm">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-3 text-left">Mutual Groups</h3>
+              <div className="space-y-2">
+                {mutualGroups.map((group) => (
+                  <div 
+                    key={group.id}
+                    className="flex items-center gap-3 p-3 bg-card rounded-lg border border-border cursor-pointer hover:bg-muted transition-colors"
+                    onClick={() => navigate(`/group/${group.id}`)}
+                  >
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={group.avatar_url} />
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {group.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="font-medium text-sm">{group.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {getGroupMembers(group.id).length} members
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          )}
 
           {/* Member Since */}
           <p className="text-xs text-muted-foreground mt-8">
