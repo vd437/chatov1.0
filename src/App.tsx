@@ -31,6 +31,7 @@ import MockGroupProfile from "./pages/MockGroupProfile";
 import JoinGroup from "./pages/JoinGroup";
 import MockUserProfile from "./pages/MockUserProfile";
 import CallScreen from "./pages/CallScreen";
+import CallHistory from "./pages/CallHistory";
 
 import { MockAuthProvider } from "@/contexts/MockAuthContext";
 import { MockDataProvider } from "@/contexts/MockDataContext";
@@ -76,6 +77,7 @@ const App = () => (
                 <Route path="/user-search" element={<UserSearch />} />
                 <Route path="/friends" element={<Friends />} />
                 <Route path="/notifications" element={<Notifications />} />
+                <Route path="/calls" element={<CallHistory />} />
 
                 {/* Groups (local) */}
                 <Route path="/groups" element={<MockGroups />} />
