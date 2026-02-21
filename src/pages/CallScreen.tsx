@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Volume2, VideoOff, Mic, PhoneOff, Minimize2 } from "lucide-react";
+import MinimizedCallBar from "@/components/MinimizedCallBar";
 
 const mockChatInfo: Record<string, { name: string; avatar: string }> = {
   "fake-user-1": { name: "Sarah Johnson", avatar: "https://i.pravatar.cc/150?u=sarah" },
@@ -22,12 +23,17 @@ export default function CallScreen() {
 
   const [callState, setCallState] = useState<"waiting" | "connected">("waiting");
   const [elapsed, setElapsed] = useState(0);
+  const [connectedAt, setConnectedAt] = useState<number>(0);
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
 
   // Auto-answer after 3 seconds
   useEffect(() => {
-    const timer = setTimeout(() => setCallState("connected"), 3000);
+    const timer = setTimeout(() => {
+      setCallState("connected");
+      setConnectedAt(Date.now());
+    }, 3000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -46,20 +52,42 @@ export default function CallScreen() {
 
   const endCall = useCallback(() => navigate(-1), [navigate]);
 
+  const handleMinimize = () => {
+    if (callState === "connected") {
+      setIsMinimized(true);
+    } else {
+      endCall();
+    }
+  };
+
+  if (isMinimized) {
+    return (
+      <div className="h-screen flex flex-col bg-background">
+        <MinimizedCallBar
+          userName={user.name}
+          userAvatar={user.avatar}
+          startTime={connectedAt}
+          onEnd={endCall}
+          onExpand={() => setIsMinimized(false)}
+        />
+        <div className="flex-1 pt-8" />
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen flex flex-col items-center justify-between"
       style={{ background: "var(--gradient-primary)" }}>
       {/* Top bar */}
       <div className="w-full flex items-center p-4">
         <Button variant="ghost" size="icon" className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 rounded-full"
-          onClick={() => navigate(-1)}>
+          onClick={handleMinimize}>
           <Minimize2 className="w-5 h-5" />
         </Button>
       </div>
 
       {/* Center: avatar + name + status */}
       <div className="flex flex-col items-center gap-4 -mt-8">
-        {/* Pulsing ring around avatar */}
         <div className={`relative rounded-full ${callState === "waiting" ? "animate-pulse" : ""}`}>
           <div className="absolute -inset-4 rounded-full bg-primary-foreground/10" />
           <div className="absolute -inset-8 rounded-full bg-primary-foreground/5" />
@@ -85,27 +113,10 @@ export default function CallScreen() {
       {/* Bottom action buttons */}
       <div className="w-full px-6 pb-10">
         <div className="flex items-center justify-around max-w-xs mx-auto">
-          <ActionButton
-            icon={<Volume2 className="w-6 h-6" />}
-            label="Speaker"
-            active={isSpeaker}
-            onClick={() => setIsSpeaker(!isSpeaker)}
-          />
-          <ActionButton
-            icon={<VideoOff className="w-6 h-6" />}
-            label={callType === "video" ? "Camera" : "Camera"}
-            onClick={() => {}}
-          />
-          <ActionButton
-            icon={<Mic className="w-6 h-6" />}
-            label="Mute"
-            active={isMuted}
-            onClick={() => setIsMuted(!isMuted)}
-          />
-          <button
-            onClick={endCall}
-            className="flex flex-col items-center gap-1"
-          >
+          <ActionButton icon={<Volume2 className="w-6 h-6" />} label="Speaker" active={isSpeaker} onClick={() => setIsSpeaker(!isSpeaker)} />
+          <ActionButton icon={<VideoOff className="w-6 h-6" />} label="Camera" onClick={() => {}} />
+          <ActionButton icon={<Mic className="w-6 h-6" />} label="Mute" active={isMuted} onClick={() => setIsMuted(!isMuted)} />
+          <button onClick={endCall} className="flex flex-col items-center gap-1">
             <div className="w-14 h-14 rounded-full bg-destructive flex items-center justify-center shadow-lg hover:bg-destructive/90 transition-colors">
               <PhoneOff className="w-6 h-6 text-destructive-foreground" />
             </div>
@@ -123,9 +134,7 @@ function ActionButton({ icon, label, active, onClick }: {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1">
       <div className={`w-14 h-14 rounded-full flex items-center justify-center transition-colors ${
-        active
-          ? "bg-primary-foreground text-primary"
-          : "bg-primary-foreground/20 text-primary-foreground"
+        active ? "bg-primary-foreground text-primary" : "bg-primary-foreground/20 text-primary-foreground"
       }`}>
         {icon}
       </div>

@@ -4,7 +4,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 
 export function MainLayout() {
   const location = useLocation();
-  const hideSidebarRoutes = ['/chat/', '/forward-message', '/report/'];
+  const hideSidebarRoutes = ['/chat/', '/forward-message', '/report/', '/call/'];
   const shouldHideSidebar = hideSidebarRoutes.some(route => location.pathname.includes(route));
 
   if (shouldHideSidebar) {
