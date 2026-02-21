@@ -192,17 +192,11 @@ export default function ChatDetail() {
   };
 
   const handleCall = () => {
-    toast({
-      title: "Voice Call",
-      description: "Starting voice call...",
-    });
+    navigate(`/call/${chatId}?type=voice`);
   };
 
   const handleVideoCall = () => {
-    toast({
-      title: "Video Call",
-      description: "Starting video call...",
-    });
+    navigate(`/call/${chatId}?type=video`);
   };
 
   return (
