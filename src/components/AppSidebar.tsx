@@ -1,4 +1,4 @@
-import { Home, MessageCircle, Zap, Users, Settings, LogOut, Bell, UsersRound } from "lucide-react";
+import { Home, MessageCircle, Zap, Users, Settings, LogOut, Bell, UsersRound, Phone } from "lucide-react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   Sidebar,
@@ -21,6 +21,7 @@ const menuItems = [
   { title: "Stories", url: "/stories", icon: Zap },
   { title: "Friends", url: "/friends", icon: Users },
   { title: "Notifications", url: "/notifications", icon: Bell },
+  { title: "Calls", url: "/calls", icon: Phone },
   { title: "Groups", url: "/groups", icon: UsersRound },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
