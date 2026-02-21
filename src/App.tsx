@@ -30,6 +30,7 @@ import MockGroupDetail from "./pages/MockGroupDetail";
 import MockGroupProfile from "./pages/MockGroupProfile";
 import JoinGroup from "./pages/JoinGroup";
 import MockUserProfile from "./pages/MockUserProfile";
+import CallScreen from "./pages/CallScreen";
 
 import { MockAuthProvider } from "@/contexts/MockAuthContext";
 import { MockDataProvider } from "@/contexts/MockDataContext";
@@ -65,7 +66,8 @@ const App = () => (
               <Route element={<MainLayout />}>
                 <Route path="/home" element={<Navigate to="/chats" replace />} />
                 <Route path="/chats" element={<ChatList />} />
-                <Route path="/chat/:chatId" element={<ChatDetail />} />
+              <Route path="/chat/:chatId" element={<ChatDetail />} />
+              <Route path="/call/:userId" element={<CallScreen />} />
                 <Route path="/forward-message" element={<ForwardMessage />} />
                 <Route path="/report/:chatId" element={<Report />} />
                 <Route path="/stories" element={<Stories />} />
