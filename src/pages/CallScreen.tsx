@@ -3,7 +3,10 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Volume2, VolumeX, VideoOff, Video, Mic, MicOff, PhoneOff, Minimize2 } from "lucide-react";
-import MinimizedCallBar from "@/components/MinimizedCallBar";
+import { useCall } from "@/contexts/CallContext";
+
+const VIDEO_A = "https://www.w3schools.com/html/mov_bbb.mp4";
+const VIDEO_B = "https://www.w3schools.com/html/movie.mp4";
 
 const mockChatInfo: Record<string, { name: string; avatar: string }> = {
   "fake-user-1": { name: "Sarah Johnson", avatar: "https://i.pravatar.cc/150?u=sarah" },
@@ -18,32 +21,40 @@ export default function CallScreen() {
   const { userId } = useParams();
   const [searchParams] = useSearchParams();
   const callType = searchParams.get("type") || "voice";
+  const { activeCall, startCall, endCall: endCallCtx } = useCall();
 
   const user = mockChatInfo[userId as string] || { name: "Unknown", avatar: "" };
 
-  const [callState, setCallState] = useState<"waiting" | "connected">("waiting");
+  const [callState, setCallState] = useState<"waiting" | "connected">(
+    activeCall?.userId === userId ? "connected" : "waiting"
+  );
   const [elapsed, setElapsed] = useState(0);
-  const [connectedAt, setConnectedAt] = useState<number>(0);
+  const [connectedAt, setConnectedAt] = useState<number>(activeCall?.startTime || 0);
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(false);
   const [isCameraOn, setIsCameraOn] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isSwapped, setIsSwapped] = useState(false);
 
-  // Auto-answer after 3 seconds
+  // Auto-answer after 3 seconds (only if not already connected via context)
   useEffect(() => {
+    if (activeCall?.userId === userId) return; // already connected
     const timer = setTimeout(() => {
+      const now = Date.now();
       setCallState("connected");
-      setConnectedAt(Date.now());
+      setConnectedAt(now);
+      startCall({ userId: userId!, userName: user.name, userAvatar: user.avatar, startTime: now });
     }, 3000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [userId, activeCall, startCall, user.name, user.avatar]);
 
-  // Call timer
+  // Sync elapsed from context startTime when returning to call
   useEffect(() => {
     if (callState !== "connected") return;
-    const interval = setInterval(() => setElapsed((e) => e + 1), 1000);
+    const start = connectedAt || Date.now();
+    setElapsed(Math.floor((Date.now() - start) / 1000));
+    const interval = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
     return () => clearInterval(interval);
-  }, [callState]);
+  }, [callState, connectedAt]);
 
   const formatTime = (s: number) => {
     const m = Math.floor(s / 60);
@@ -51,30 +62,21 @@ export default function CallScreen() {
     return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
 
-  const endCall = useCallback(() => navigate(-1), [navigate]);
+  const handleEndCall = useCallback(() => {
+    endCallCtx();
+    navigate(-1);
+  }, [endCallCtx, navigate]);
 
   const handleMinimize = () => {
     if (callState === "connected") {
-      setIsMinimized(true);
+      navigate(-1); // go back, green bar shows via GlobalCallBar
     } else {
-      endCall();
+      handleEndCall();
     }
   };
 
-  if (isMinimized) {
-    return (
-      <div className="h-screen flex flex-col bg-background">
-        <MinimizedCallBar
-          userName={user.name}
-          userAvatar={user.avatar}
-          startTime={connectedAt}
-          onEnd={endCall}
-          onExpand={() => setIsMinimized(false)}
-        />
-        <div className="flex-1 pt-8" />
-      </div>
-    );
-  }
+  const mainVideo = isSwapped ? VIDEO_B : VIDEO_A;
+  const pipVideo = isSwapped ? VIDEO_A : VIDEO_B;
 
   return (
     <div className="h-screen flex flex-col items-center justify-between relative overflow-hidden"
@@ -84,17 +86,21 @@ export default function CallScreen() {
       {isCameraOn && (
         <>
           <video
-            className="absolute inset-0 w-full h-full object-cover"
-            src="https://www.w3schools.com/html/mov_bbb.mp4"
+            className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+            src={mainVideo}
             autoPlay loop muted playsInline
+            onClick={() => setIsSwapped(!isSwapped)}
           />
-          <div className="absolute inset-0 bg-black/20" />
+          <div className="absolute inset-0 bg-black/20 pointer-events-none" />
 
-          {/* Local PiP camera */}
-          <div className="absolute bottom-28 right-4 w-28 h-40 rounded-2xl overflow-hidden border-2 border-primary-foreground/30 shadow-xl z-20">
+          {/* PiP camera - raised above buttons */}
+          <div
+            className="absolute bottom-36 right-4 w-28 h-40 rounded-2xl overflow-hidden border-2 border-primary-foreground/30 shadow-xl z-20 cursor-pointer active:scale-95 transition-transform"
+            onClick={() => setIsSwapped(!isSwapped)}
+          >
             <video
               className="w-full h-full object-cover scale-x-[-1]"
-              src="https://www.w3schools.com/html/movie.mp4"
+              src={pipVideo}
               autoPlay loop muted playsInline
             />
           </div>
@@ -108,7 +114,6 @@ export default function CallScreen() {
           <Minimize2 className="w-5 h-5" />
         </Button>
 
-        {/* Timer at top when camera is on or connected */}
         {callState === "connected" && (
           <span className="text-primary-foreground/90 text-sm font-medium tabular-nums">
             {formatTime(elapsed)}
@@ -144,7 +149,6 @@ export default function CallScreen() {
         </div>
       )}
 
-      {/* Spacer when camera is on */}
       {isCameraOn && <div className="flex-1" />}
 
       {/* Bottom action buttons */}
@@ -168,7 +172,7 @@ export default function CallScreen() {
             active={isMuted}
             onClick={() => setIsMuted(!isMuted)}
           />
-          <button onClick={endCall} className="flex flex-col items-center gap-1">
+          <button onClick={handleEndCall} className="flex flex-col items-center gap-1">
             <div className="w-14 h-14 rounded-full bg-destructive flex items-center justify-center shadow-lg hover:bg-destructive/90 transition-colors">
               <PhoneOff className="w-6 h-6 text-destructive-foreground" />
             </div>
