@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Volume2, VideoOff, Mic, PhoneOff, Minimize2 } from "lucide-react";
+import { Volume2, VolumeX, VideoOff, Video, Mic, MicOff, PhoneOff, Minimize2 } from "lucide-react";
 import MinimizedCallBar from "@/components/MinimizedCallBar";
 
 const mockChatInfo: Record<string, { name: string; avatar: string }> = {
@@ -26,6 +26,7 @@ export default function CallScreen() {
   const [connectedAt, setConnectedAt] = useState<number>(0);
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(false);
+  const [isCameraOn, setIsCameraOn] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
   // Auto-answer after 3 seconds
@@ -76,46 +77,97 @@ export default function CallScreen() {
   }
 
   return (
-    <div className="h-screen flex flex-col items-center justify-between"
-      style={{ background: "var(--gradient-primary)" }}>
+    <div className="h-screen flex flex-col items-center justify-between relative overflow-hidden"
+      style={{ background: isCameraOn ? "#000" : "var(--gradient-primary)" }}>
+
+      {/* Video mode: remote video fullscreen */}
+      {isCameraOn && (
+        <>
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            src="https://www.w3schools.com/html/mov_bbb.mp4"
+            autoPlay loop muted playsInline
+          />
+          <div className="absolute inset-0 bg-black/20" />
+
+          {/* Local PiP camera */}
+          <div className="absolute bottom-28 right-4 w-28 h-40 rounded-2xl overflow-hidden border-2 border-primary-foreground/30 shadow-xl z-20">
+            <video
+              className="w-full h-full object-cover scale-x-[-1]"
+              src="https://www.w3schools.com/html/movie.mp4"
+              autoPlay loop muted playsInline
+            />
+          </div>
+        </>
+      )}
+
       {/* Top bar */}
-      <div className="w-full flex items-center p-4">
+      <div className="w-full flex items-center justify-between p-4 relative z-10">
         <Button variant="ghost" size="icon" className="text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10 rounded-full"
           onClick={handleMinimize}>
           <Minimize2 className="w-5 h-5" />
         </Button>
-      </div>
 
-      {/* Center: avatar + name + status */}
-      <div className="flex flex-col items-center gap-4 -mt-8">
-        <div className={`relative rounded-full ${callState === "waiting" ? "animate-pulse" : ""}`}>
-          <div className="absolute -inset-4 rounded-full bg-primary-foreground/10" />
-          <div className="absolute -inset-8 rounded-full bg-primary-foreground/5" />
-          <Avatar className="w-32 h-32 border-4 border-primary-foreground/20 relative z-10">
-            <AvatarImage src={user.avatar} alt={user.name} />
-            <AvatarFallback className="text-4xl bg-primary-foreground/20 text-primary-foreground">
-              {user.name[0]}
-            </AvatarFallback>
-          </Avatar>
-        </div>
-
-        <h2 className="text-2xl font-bold text-primary-foreground mt-2">{user.name}</h2>
-
-        {callState === "waiting" ? (
-          <WaitingDots />
-        ) : (
-          <p className="text-primary-foreground/80 text-sm font-medium tabular-nums">
+        {/* Timer at top when camera is on or connected */}
+        {callState === "connected" && (
+          <span className="text-primary-foreground/90 text-sm font-medium tabular-nums">
             {formatTime(elapsed)}
-          </p>
+          </span>
         )}
+        {callState === "waiting" && <span />}
+        <span className="w-10" />
       </div>
+
+      {/* Center: avatar + name + status (hidden in video mode) */}
+      {!isCameraOn && (
+        <div className="flex flex-col items-center gap-4 -mt-8 relative z-10">
+          <div className={`relative rounded-full ${callState === "waiting" ? "animate-pulse" : ""}`}>
+            <div className="absolute -inset-4 rounded-full bg-primary-foreground/10" />
+            <div className="absolute -inset-8 rounded-full bg-primary-foreground/5" />
+            <Avatar className="w-32 h-32 border-4 border-primary-foreground/20 relative z-10">
+              <AvatarImage src={user.avatar} alt={user.name} />
+              <AvatarFallback className="text-4xl bg-primary-foreground/20 text-primary-foreground">
+                {user.name[0]}
+              </AvatarFallback>
+            </Avatar>
+          </div>
+
+          <h2 className="text-2xl font-bold text-primary-foreground mt-2">{user.name}</h2>
+
+          {callState === "waiting" ? (
+            <WaitingDots />
+          ) : (
+            <p className="text-primary-foreground/80 text-sm font-medium tabular-nums">
+              {formatTime(elapsed)}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Spacer when camera is on */}
+      {isCameraOn && <div className="flex-1" />}
 
       {/* Bottom action buttons */}
-      <div className="w-full px-6 pb-10">
+      <div className="w-full px-6 pb-10 relative z-10">
         <div className="flex items-center justify-around max-w-xs mx-auto">
-          <ActionButton icon={<Volume2 className="w-6 h-6" />} label="Speaker" active={isSpeaker} onClick={() => setIsSpeaker(!isSpeaker)} />
-          <ActionButton icon={<VideoOff className="w-6 h-6" />} label="Camera" onClick={() => {}} />
-          <ActionButton icon={<Mic className="w-6 h-6" />} label="Mute" active={isMuted} onClick={() => setIsMuted(!isMuted)} />
+          <ActionButton
+            icon={isSpeaker ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+            label={isSpeaker ? "Unmute" : "Speaker"}
+            active={isSpeaker}
+            onClick={() => setIsSpeaker(!isSpeaker)}
+          />
+          <ActionButton
+            icon={isCameraOn ? <Video className="w-6 h-6" /> : <VideoOff className="w-6 h-6" />}
+            label="Camera"
+            active={isCameraOn}
+            onClick={() => setIsCameraOn(!isCameraOn)}
+          />
+          <ActionButton
+            icon={isMuted ? <MicOff className="w-6 h-6" /> : <Mic className="w-6 h-6" />}
+            label={isMuted ? "Unmute" : "Mute"}
+            active={isMuted}
+            onClick={() => setIsMuted(!isMuted)}
+          />
           <button onClick={endCall} className="flex flex-col items-center gap-1">
             <div className="w-14 h-14 rounded-full bg-destructive flex items-center justify-center shadow-lg hover:bg-destructive/90 transition-colors">
               <PhoneOff className="w-6 h-6 text-destructive-foreground" />
