@@ -62,14 +62,22 @@ export default function CallScreen() {
     return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
 
+  const goBack = useCallback(() => {
+    if (window.history.length > 2) {
+      navigate(-1);
+    } else {
+      navigate("/chats", { replace: true });
+    }
+  }, [navigate]);
+
   const handleEndCall = useCallback(() => {
     endCallCtx();
-    navigate(-1);
-  }, [endCallCtx, navigate]);
+    goBack();
+  }, [endCallCtx, goBack]);
 
   const handleMinimize = () => {
     if (callState === "connected") {
-      navigate(-1); // go back, green bar shows via GlobalCallBar
+      goBack(); // go back, green bar shows via GlobalCallBar
     } else {
       handleEndCall();
     }
